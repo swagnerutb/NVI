@@ -1,3 +1,3 @@
 # NVI Inc.
 
-Internship at NVI Inc. and NASA Goddard Space Flight Center.
+Internship at NVI Inc. at the NASA Goddard Space Flight Center.
