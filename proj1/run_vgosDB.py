@@ -45,10 +45,9 @@ wrp_dir = ask_user_wrp(path)
 graph_flag = ask_user_g()
 
 os_cmd = 'python -m vgosDBpy ' + wrp_dir
-os_cmd = 'python3 -m vgosDBpy ' + wrp_dir
+#os_cmd = 'python3 -m vgosDBpy ' + wrp_dir
 
 if(graph_flag == "yes"):
     os_cmd = os_cmd+" -g"
-
 
 os.system(os_cmd)
