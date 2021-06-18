@@ -223,7 +223,6 @@ class Plotfunction_class():
         # possible options is time, index or data form path.
         Temp =  get_data_to_plot(paths[0],vars[0])
         if(nbr == 1 and plot_to_time == False):
-            t12=time.time()
             self._add_index_to_xAxis(paths[0],Temp[0])
             for itm in Temp :
                 self.add_to_y_axis(paths[0],vars[0],itm)
