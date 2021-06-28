@@ -38,7 +38,7 @@ def get_unit_to_print(path,var):
             unit = nc.variables[var].Units
         except:
             unit = '-'
-        return "  ["+unit+"]"
+        return f" [{unit}]"
 
 
 """

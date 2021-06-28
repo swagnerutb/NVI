@@ -28,10 +28,10 @@ class AxesToolBox(QWidget):
         '''
         Constructor
 
-        parent [QWidget]
-        canvas [PlotFigure]
-        table_widget [DataTable]
-        start_axis [DataAxis] is the axis which should be the current axis from start
+        parent: [QWidget]
+        canvas: [PlotFigure]
+        table_widget: [DataTable]
+        start_axis: [DataAxis] is the axis which should be the current axis from start
         '''
 
         super(AxesToolBox, self).__init__(parent)
@@ -48,7 +48,10 @@ class AxesToolBox(QWidget):
         # Control, appearance and data variables
         self.selector = None
         self.data_axis = canvas.getDataAxis()
+        #self.current_axis = start_axis
+        #New:
         self.current_axis = start_axis
+
 
         # Buttons and their respective functions ##################################################
         appearance_widget = QWidget(self)
@@ -75,7 +78,7 @@ class AxesToolBox(QWidget):
 
         appearance_layout.addWidget(self.clear_marked, 0, 1)
         appearance_layout.addWidget(self.remove_marked, 1, 1)
-        appearance_layout.addWidget(self.restore_marked, 2, 1)
+        appearance_layout.addWidget(self.restore_marked, 2, 1,1,2)
 
         appearance_layout.addWidget(self.saveEdit, 0, 2)
         appearance_layout.addWidget(self.printTable, 1, 2)
@@ -116,7 +119,6 @@ class AxesToolBox(QWidget):
 
         data_axis [list of DataAxis]
         '''
-        
         if len(data_axis) > 0:
             self.resetToolBox()
             bool = True
@@ -148,7 +150,7 @@ class AxesToolBox(QWidget):
         '''
         self.selector = None
         self.data_axis = []
-        #self.canvas.updatePlot()
+        self.canvas.updatePlot() #comment
 
     def setCurrentAxis(self, data_axis):
         '''
@@ -251,7 +253,7 @@ class AxesToolBox(QWidget):
         # Update plot figure with marked data
         for ax in self.data_axis:
             ax.updateLines()
-        #self.canvas.updatePlot()
+        self.canvas.updatePlot() #comment
 
         # Update table with marked data
         #self.table_widget.getSignal().disconnect(self._selection_changed_callback_table)
@@ -270,10 +272,10 @@ class AxesToolBox(QWidget):
         for ax in self.data_axis:
             ax.updateLines()
 
-        #self.canvas.updatePlot()
-        #self._showLine() #unnecessary
-        #self._showMarkers() #unnecessary
-        #self._showSmoothCurve() #unnecessary
+        self.canvas.updatePlot() #comment
+        self._showLine() #kommenterad
+        self._showMarkers() #kommenterad
+        self._showSmoothCurve() #kommenterad
 
         # Update table
         self.table_widget.updateFromDataAxis(self.data_axis)
@@ -286,14 +288,19 @@ class AxesToolBox(QWidget):
         '''
         Method that displays/hide the line in the plot
         '''
-        self.current_axis.displayMainCurve(self.check_line.isChecked())
+        for axis in self.data_axis:
+            axis.displayMainCurve(self.check_line.isChecked())
+        #self.current_axis.displayMainCurve(self.check_line.isChecked())
         self.canvas.updatePlot()
 
     def _showMarkers(self):
         '''
         Method that displays/hide the markers in the data
         '''
-        self.current_axis.displayMarkers(self.check_marker.isChecked())
+        
+        for axis in self.data_axis:
+            axis.displayMarkers(self.check_marker.isChecked())
+        #self.current_axis.displayMarkers(self.check_marker.isChecked())
         self.canvas.updatePlot()
 
 
@@ -301,7 +308,9 @@ class AxesToolBox(QWidget):
         '''
         Method that displays/hide a smooth curve fit in the data
         '''
-        self.current_axis.displaySmoothCurve(self.check_smooth_curve.isChecked())
+        for axis in self.data_axis:
+            axis.displaySmoothCurve(self.check_smooth_curve.isChecked())
+        #self.current_axis.displaySmoothCurve(self.check_smooth_curve.isChecked())
         self.canvas.updatePlot()
 
 
@@ -315,7 +324,6 @@ class AxesToolBox(QWidget):
             self.canvas.timeInt = 1
         else:
             self.canvas.timeInt = 0
-
 
         self.table_widget.resetModel()
         self.canvas.timeChanged()

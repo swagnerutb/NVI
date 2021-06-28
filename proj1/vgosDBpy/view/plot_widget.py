@@ -109,7 +109,7 @@ class PlotFigure(FigureCanvas):
         '''
         return data_axis in self._ax
 
-    def updateFigure(self, items, timeUpdated = False):
+    def updateFigure(self,items,timeUpdated=False,custom_x_axis=False):
         '''
         Updates figure with the given items
 
@@ -134,13 +134,20 @@ class PlotFigure(FigureCanvas):
                     self.items.append(itm)
             
             if not_S1(self.paths, self.vars):
-                axis, data = self.plot_function.plotFunction(self.paths, self.vars, self.figure, self.timeInt)
+                axis, data = self.plot_function.plotFunction(self.paths, self.vars, self.figure, self.timeInt, custom_x_axis=custom_x_axis)
                 is_mult = is_multdim_var_list(self.paths, self.vars)
 
                 if is_mult!= -1:
                     items.append(items[is_mult])
-                for i in range(len(axis)):
-                    self.addAxis(DataAxis(axis[i], data[i], items[i]))
+                # print("\nview.plot_widget.updateFigure()\nlen(axis):",len(axis))
+                # print("len(data):",len(data))
+                # print("len(items):",len(items),"\n")
+                if(len(items) == 1):
+                    for i in range(len(axis)):
+                        self.addAxis(DataAxis(axis[i], data[i], items[0]))
+                else:
+                    for i in range(len(axis)):
+                        self.addAxis(DataAxis(axis[i], data[i], items[i]))
                 # Refresh canvas
                 self.updatePlot()
             else:
@@ -162,8 +169,7 @@ class PlotFigure(FigureCanvas):
             self.addAxis(DataAxis(axis[i], data[i], items[i]))
         self.updatePlot()
 
-
-    def append_plot(self, item):
+    def append_plot(self, item, custom_x_axis=False):
         """
         Appends existing figue with the given item
         item: [QStandardItem]
@@ -174,7 +180,7 @@ class PlotFigure(FigureCanvas):
         self.items.append(item)
         self.clearAxes()
         if not_S1(self.paths,self.vars):
-            axis, data = self.plot_function.plotFunction(self.paths, self.vars, self.figure, self.timeInt)
+            axis, data = self.plot_function.plotFunction(self.paths, self.vars, self.figure, self.timeInt, custom_x_axis)
             for i in range(len(axis)):
                 data_axis = DataAxis(axis[i], data[i], self.items[i])
                 self.addAxis(data_axis)
@@ -183,6 +189,28 @@ class PlotFigure(FigureCanvas):
             self.updatePlot()
         else:
             raise ValueError('Can not plot a string')
+
+
+    # def x_axis_append_plot(self, item):
+    #     """
+    #     Changes existing x-axis to user selected data
+    #     item: [QStandardItem]
+    #     """
+    #     #add new item
+    #     #self.paths.append(item.getPath())
+    #     #self.vars.append(item.labels)
+    #     #self.items.append(item)
+    #     self.clearAxes()
+    #     if not_S1(self.paths,self.vars):
+    #         axis, data = self.plot_function.plotFunction(self.paths, self.vars, self.figure, self.timeInt)
+    #         for i in range(len(axis)):
+    #             data_axis = DataAxis(axis[i], data[i], self.items[i])
+    #             self.addAxis(data_axis)
+
+    #         # Refresh canvas
+    #         self.updatePlot()
+    #     else:
+    #         raise ValueError('Can not plot a string')
 
 
     def timeChanged(self):

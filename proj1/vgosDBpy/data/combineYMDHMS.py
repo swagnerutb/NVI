@@ -80,9 +80,6 @@ def findCorrespondingTime(pathToNetCDF):
     if os.path.isfile(pathToNetCDF):
         time_path = os.path.join(os.path.dirname(pathToNetCDF),'TimeUTC.nc')
 
-        # parts = pathToNetCDF.split("/")
-        # parts[-1] = 'TimeUTC.nc' # Hard-coded
-        # time_path = '/'.join(parts)
         if(os.path.isfile(time_path)):
             return time_path
         else: # returning an empty string is seen as other functions as a sign to default with index instead

@@ -1,6 +1,8 @@
 import datetime
 from netCDF4 import Dataset
 
+import numpy as np #REMOVE
+
 from vgosDBpy.data.combineYMDHMS import combineYMDHMwithSec,findCorrespondingTime
 from vgosDBpy.data.convertDimensionName import get_folder_name, get_correct_dimension_name
 """
@@ -20,12 +22,15 @@ output:
 """
 def get_data_to_plot(pathToNetCDF,var):
     with Dataset(pathToNetCDF, 'r') as nc:
-        marker= is_multdim_var(pathToNetCDF, var)
+        marker = is_multdim_var(pathToNetCDF, var)
         if marker != -1:
             y = _getDataFromVar_multDim(pathToNetCDF,var) #if matrix stored in variable, all data read in
         else:
             y = _getDataFromVar_table(pathToNetCDF,var)
-        return y
+        
+        y_return = y[int(var[-1])]
+        print("y_return.shape:", np.asarray(y_return).shape)
+        return [y_return]
 
 """
 creates the title for a plot on the form 'Sation_name + date_of_Session'
@@ -119,7 +124,7 @@ output:
 """
 def get_dtype_var(path, var):
     with Dataset(path, "r") as nc:
-        return nc.variables[var].dtype
+        return nc.variables[var.split("_")[0]].dtype # even if there's no _ same var is returned
 
 
 
@@ -157,6 +162,7 @@ output:
 def _get_len_dims(path, var):
     with Dataset(path, 'r') as nc:
         dims = nc.variables[var].get_dims()
+        print("\n we got the dims:", dims)
         return len(dims)
 
 """
@@ -171,6 +177,7 @@ def is_multdim_var(path,var):
     marker = -1
     c=0
     with Dataset(path, 'r') as nc:
+        var = var.split("_")[0] # even if there's no _ same var is returned
         if len(nc.variables[var.strip()].get_dims()) > 1:
             marker = c
         c += 1
@@ -287,6 +294,7 @@ output:
 def _getDataFromVar_table(path, var):
      return_data = []
      with Dataset(path, "r") as nc:
+         var = var.split("_")[0] # even if there's no _ same var is returned
          return_data.append(nc.variables[var][:])
          return(return_data)
 
@@ -304,10 +312,8 @@ def _get_S1_tableData(pathToNetCDF, var):
     with Dataset(pathToNetCDF, "r") as nc:
         data= nc.variables[var][:]
         for line in data:
-
             temp = ''
             for letter in line:
-
                 temp += letter.decode('ASCII')
             data.append(temp)
         return_data.append(data)
@@ -376,13 +382,15 @@ output:
 def _getDataFromVar_multDim(pathToNetCDF, var):
     return_data = []
     with Dataset(pathToNetCDF, 'r') as nc:
+        var = var.split("_")[0] # even if there's no _ same var is returned
         length = len(nc.variables[var.strip()].get_dims())
         length2 = len(nc.variables[var][0,:])
-        for i in range (0,length2):
+        #for k in range(length):
+        for i in range(length2):
             dtype = nc.variables[var.strip()][:,[i]].dtype
             if dtype == 'S1':
-                data_var= nc.variables[var][:,[i]]
-                data= []
+                data_var = nc.variables[var][:,[i]]
+                data = []
                 for line in data_var:
                     temp = ''
                     for letter in line:
@@ -480,7 +488,7 @@ output:
 """
 def get_netCDF_vars_info(pathToNetCDF):
     info = ""
-    vars =get_netCDF_variables(pathToNetCDF)
+    vars = get_netCDF_variables(pathToNetCDF)
     dtypes = get_dtype_netCDF(pathToNetCDF)
     for i in range(len(vars)):
         if not is_Numscans(pathToNetCDF,vars[i]) and not is_NumObs(pathToNetCDF,vars[i]):
@@ -570,6 +578,7 @@ def is_multdim_var_list(paths, vars):
     for i in range(0,len(paths)):
         path= paths[i]
         var=vars[i]
+        var = var.split("_")[0] # even if there's no _ same var is returned
         marker = -1
         c=0
         with Dataset(path, 'r') as nc:
@@ -604,9 +613,12 @@ output:
     boolean
 """
 def not_S1(paths, vars):
+    vars_list = []
+    for k in range(len(vars)):
+        vars_list.append(vars[k].split("_")[0]) # even if there's no _ same var is returned
     for i in range(len(paths)):
         with Dataset(paths[i], 'r') as nc:
-            dtype = nc.variables[vars[i]].dtype.name
+            dtype = nc.variables[vars_list[i]].dtype.name
             if dtype.strip() == 'S1':
                 return False
     return True

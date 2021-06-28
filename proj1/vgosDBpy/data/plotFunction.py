@@ -36,8 +36,27 @@ class AxisItem():
     """
     output: [string]
     """
-    def get_axis_lable(self):
-        return name(self.var)+unit(self.path,self.var)
+    def get_axis_label(self):
+        var = self.var.split("_")[0]
+        var_unit = unit(self.path, var)
+        var_unit_list = var_unit.split(",")
+
+        try:
+            nbr = int(self.var[-1])
+        except:
+            nbr = -1
+
+        if(len(var_unit_list) > 1 and nbr > -1):
+            if(not var_unit_list[nbr].endswith("]")):
+                var_unit = var_unit_list[nbr]+"]"
+            else:
+                var_unit = " ["+var_unit_list[nbr][1:]
+        
+        # Making sure rate is expressed in units
+        if(nbr==1 and var_unit.split("[")[1][0] != "-" and not (var_unit.endswith("/sec]") or var_unit[nbr].endswith("/second]"))):
+            var_unit = var_unit.replace(']','/sec]')
+        
+        return var + var_unit
 
 
     def empty(self):
@@ -120,7 +139,7 @@ class Plotfunction_class():
         fig: [Figure]
     """
     def _createAxis(self,fig):
-        self.axis.append(fig.add_subplot(1,1,1) ) # connects the axis to a figure
+        self.axis.append(fig.add_subplot(1,1,1)) # connects the axis to a figure
 
     """
     that shares the same x-axis so the same function as the one above
@@ -137,7 +156,7 @@ class Plotfunction_class():
         path: [string],
         var: [string], data: [array]
     """
-    def add_to_x_axis(self,path, var, data): # adds data to the x-Axis
+    def add_to_x_axis(self,path,var,data): # adds data to the x-Axis
         data = np.squeeze(np.asarray(data))
         self.x.createAxisItem(path,var,data)
 
@@ -151,6 +170,7 @@ class Plotfunction_class():
     """
     def add_to_y_axis(self,path,var,data): # adds data to a y-axis, y1 if empty else y2, if both full do nothing
         data = np.squeeze(np.asarray(data))
+        
         if self.y1.isEmpty == True:
             self.y1.createAxisItem(path,var,data)
         elif self.y2.isEmpty == True:
@@ -173,7 +193,6 @@ class Plotfunction_class():
             self.timedata[timePath_dir] = time_data
         self.add_to_x_axis(path,'Time',time_data)
 
-
     """
     Adds index to the 'x' AxisItem, by creating the data and calling _add_to_x_axis
     input:
@@ -185,32 +204,42 @@ class Plotfunction_class():
         idx = range(1,nbrIdx)
         self.add_to_x_axis(path,'Index', idx)
 
+
     """
     Adds the data stored int he axis to the directory 'data'
     """
-    def _append_data(self): # created the data_map to be returned from the dat stored in the axis
-        if self.y1.isEmpty == False:
-            self.data.append(pd.Series(self.y1.getData(), index = self.x.getData() ) )
+    def _append_data(self,vars=None): # created the data_map to be returned from the dat stored in the axis
+        if(vars is None):
+            if self.y1.isEmpty == False:
+                self.data.append(pd.Series(self.y1.getData(), index = self.x.getData() ) )
 
-        if self.y2.isEmpty == False:
-            self.data.append(pd.Series(self.y2.getData(), index = self.x.getData() ) )
+            if self.y2.isEmpty == False:
+                self.data.append(pd.Series(self.y2.getData(), index = self.x.getData() ) )
 
-    """
-    The function that is called from other files to retrieve the right data and lables for a plot
-    input:
-        paths: [array[strings]],
-        vars: [array[srings]],
-        fig: [figure]
-        state: [int]
-    output:
-        axis: [Axis]
-        data: [directory '{}']
-    """
-    def plotFunction(self,paths,vars,fig,state):
+        else:
+            if(self.y1.isEmpty == False and vars.endswith("0")):
+                self.data.append(pd.Series(self.y1.getData(), index = self.x.getData() ) )
+            if(self.y2.isEmpty == False and vars.endswith("1")):
+                self.data.append(pd.Series(self.y2.getData(), index = self.x.getData() ) )
+
+    def plotFunction(self,paths,vars,fig,state,custom_x_axis=False):
+        """
+        The function that is called from other files to retrieve the right data and lables for a plot
+        input:
+            paths: [array[strings]],
+            vars: [array[srings]],
+            fig: [figure]
+            state: [int]
+            custom_x_axis: [boolean] (optional argument)
+        output:
+            axis: [Axis]
+            data: [directory '{}']
+        """
         #clears all info
         self.clear()
         nbr = len(paths)
         self.place = -1 # keeps track of if any path was used to the x-axis, and if so not to be added to a y-axis
+
 
         if(default_time(state) == True and checkIfTimeAvailable(paths, vars) == True): # check if time on x-axis
             plot_to_time = True
@@ -220,64 +249,138 @@ class Plotfunction_class():
         So far we are not working with neither data nor axis just creating x, y1, y2
         """
         # First find which data that should be x-axis
-        # possible options is time, index or data form path.
+        # possible options is time, index or data from path.
+        print("\n######## vars:",vars,"########")
+        print("######## vars[0]:",vars[0],"########")
+        print("######## vars[0][-1]:",vars[0][-1],"########\n")
+
+        # try:
+        #     print("self._getX():\n",self._getX(),"\n")
+        # except:
+        #     print("doesn't work 0")
+        # try:
+        #     print("self.x._getX():\n",self.x._getX(),"\n")
+        # except:
+        #     print("doesn't work 1")
+        # try:
+        #     print("self.y1.get_axis_label(self):\n",self.y1.get_axis_label(),"\n")
+        # except:
+        #     print("doesn't work 2")
+        # try:
+        #     print("self.y2.get_axis_label(self):\n",self.y2.get_axis_label(),"\n")
+        # except:
+        #     print("doesn't work 3")
+
+
+        
         Temp =  get_data_to_plot(paths[0],vars[0])
-        if(nbr == 1 and plot_to_time == False):
-            self._add_index_to_xAxis(paths[0],Temp[0])
-            for itm in Temp :
-                self.add_to_y_axis(paths[0],vars[0],itm)
-        else:
-            if(plot_to_time == True):
-                self._add_time_to_xAxis(paths[0])
+
+        if(custom_x_axis==False and len(vars) < 3):
+            if(nbr == 1 and plot_to_time == False):
+                print("plotFunction: if -> if")
+                self._add_index_to_xAxis(paths[0],Temp[0])
+                #itm = Temp[int(vars[0][-1])] # data needed to get a 2 dim plot, rather than looping and having 2 y-axes
+                self.add_to_y_axis(paths[0],vars[0],Temp)
             else:
-                for i in range(len(paths)):
-                    Temp = get_data_to_plot(paths[i],vars[i])
-                    if(len(Temp) == 1 and self.x.isEmpty == True):
-                        self.add_to_x_axis(paths[i], vars[i], Temp)
-                        self.place = i
-            if self.x.isEmpty == True :
+                if(plot_to_time == True):
+                    print("plotFunction: if -> else -> if")
+                    self._add_time_to_xAxis(paths[0])
+                else:
+                    print("plotFunction: if -> else -> else")
+                    #This plots two curves on y-axis
+                    for i in range(min(2,len(paths))): #default: range(len(paths))
+                        Temp = get_data_to_plot(paths[i],vars[i])
+                        self._add_index_to_xAxis(paths[i],Temp[0])
+                        k=0
+                        for itm in Temp:
+                            self.add_to_y_axis(paths[i],vars[i],itm)
+
+        if(custom_x_axis==True or len(vars) >= 3):
+            #Reverse lists to get x and y-axes right
+            #print("\n:::::BEFORE:::::\npaths:\n",paths,"\nvars:\n",vars)
+            if(custom_x_axis == True):
+                paths = paths[::-1]
+                vars = vars[::-1]
+                if(len(vars) >= 3):
+                    temp_path = paths[2]
+                    paths[2] = paths[1]
+                    paths[1] = temp_path
+                    temp_var = vars[2]
+                    vars[2] = vars[1]
+                    vars[1] = temp_var
+            elif(len(vars) >= 3):
+                temp_path = paths[1]
+                paths[1] = paths[0]
+                paths[0] = temp_path
+                temp_var = vars[1]
+                vars[1] = vars[0]
+                vars[0] = temp_var
+            #print("\n:::::AFTER:::::\npaths:\n",paths,"\nvars:\n",vars)
+
+
+            for i in range(len(paths)):
+                Temp = get_data_to_plot(paths[i],vars[i])
+                if(len(Temp) == 1 and self.x.isEmpty == True):
+                    self.add_to_x_axis(paths[i], vars[i], Temp)
+                    self.place = i
+            
+            if self.x.isEmpty == True:
                 self._add_index_to_xAxis(paths[0],Temp)
 
-        # now we have data stored in x
+        #in case if(nbr == 1 and plot_to_time == False) above is not fulfilled
+        if(nbr != 1 or plot_to_time == True):
+            if self.x.isEmpty == True:
+                    self._add_index_to_xAxis(paths[0],Temp)
 
-        # find the data to store in y1 and y2 or just y1
+            # now we have data stored in x
+            # find the data to store in y1 and y2 or just y1
 
-        for i in range(0, len(paths) ):
-            if i != self.place :
-                path = paths[i]
-                var = vars[i]
-                Temp = get_data_to_plot(path,var)
-                for temp_data in Temp:
-                    self.add_to_y_axis(path,var,temp_data)
+            for i in range(len(paths)):
+                if i != self.place:
+                    if(vars[i] != vars[i].split("_")[0]):
+                        Temp = get_data_to_plot(paths[i],vars[i])
+                        self.add_to_y_axis(paths[i],vars[i],Temp)
+                    else:
+                        Temp = get_data_to_plot(paths[i],vars[i])
+                        for temp_data in Temp:
+                            self.add_to_y_axis(paths[i],vars[i],temp_data)
 
         """
         now we move on the defining axis and data using x, y1, y2
         """
         # use x, y1 and y2 to generate the axis and data to return
-
+        
         # first handle y1 meaning working with axis[0]
         if self.y1.isEmpty == False:
             self._createAxis(fig)
             color ='black'
-            self.axis[0].set_xlabel(self.x.get_axis_lable())
-            self.axis[0].set_ylabel(self.y1.get_axis_lable(),color=color)
-            self.axis[0].plot(self.x.getData(), self.y1.getData(),color=color, label = name(self.y1.getVar()))
+            x_label_ = self.x.get_axis_label()
+            y1_label_ = self.y1.get_axis_label()
+            self.axis[0].set_xlabel(x_label_)
+            self.axis[0].set_ylabel(y1_label_,color=color)
+            # try:
+            self.axis[0].plot(self.x.getData(), self.y1.getData(), color=color, label = name(self.y1.getVar()).split("_")[0])
+            # except:
+            #     print("\nexception!\n")
+            #     self.self.axis[0].plot(self.x.getData()[0], self.y1.getData(), color=color, label = name(self.y1.getVar()).split("_")[0])
+            
             self.axis[0].tick_params(axis='y', labelcolor=color)
 
         # if two y-axis add the second one
         if self.y2.isEmpty == False:
             self._appendAxis() # instantiate a second axes that shares the same x-axis
             color = 'tab:blue'
+            y2_label_ = self.y2.get_axis_label()
             self.axis[1].plot(self.x.getData(), self.y2.getData(), color=color,label = name(self.y2.getVar()))
-            self.axis[1].set_ylabel(self.y2.get_axis_lable(),color=color)
+            self.axis[1].set_ylabel(y2_label_,color=color)
             self.axis[1].tick_params(axis='y', labelcolor=color)
 
         # set titel to entire plot handeling all diferent cases
         if self.y2.isEmpty == True:
-            self.axis[0].set_title(header_plot(paths[0])+ "\nPlot "+name(self.y1.getVar())+" against "+name(self.x.getVar()))
+            self.axis[0].set_title(header_plot(paths[0])+ "\nPlot "+name(self.y1.getVar()).split("_")[0]+" against "+name(self.x.getVar()).split("_")[0])
         elif self.y2.isEmpty == False:
-            self.axis[0].set_title(header_plot(paths[0])+ "\nPlot "+name(self.y1.getVar())+" and "+name(self.y2.getVar())+" against "+name(self.x.getVar()))
-
+            self.axis[0].set_title(header_plot(paths[0])+ "\nPlot "+name(self.y1.getVar()).split("_")[0]+" and "+name(self.y2.getVar()).split("_")[0]+" against "+name(self.x.getVar()).split("_")[0])
+        
         self._append_data()
 
         return self.axis, self.data

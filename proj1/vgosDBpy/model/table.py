@@ -2,6 +2,7 @@ from PySide2.QtGui import QStandardItemModel
 from PySide2 import QtCore
 import pandas as pd
 import numpy as np
+from netCDF4 import Dataset #REMOVE
 
 from vgosDBpy.model.qtree import Variable, DataValue
 from vgosDBpy.data.readNetCDF import get_netCDF_variables, get_dtype_var_str, get_dimension_var, show_in_table
@@ -114,11 +115,14 @@ class VariableModel(TableModel):
         # Puts variable in first column and associated dimension in another
         for var in var_list:
             if show_in_table(item.getPath(),var):
-                self.setItem(i,0,Variable(var,item))
-                self.setItem(i,1,Variable(get_unit_to_print(item.getPath(), var),item))
-                self.setItem(i,2,Variable(get_dimension_var(item.getPath(), var),item))
-                self.setItem(i,3,Variable(get_dtype_var_str(item.getPath(), var),item))
-                i += 1
+                with Dataset(item.getPath(), 'r') as nc:
+                    length = len(nc.variables[var.strip()].get_dims())
+                for k in range(max(1,length)):
+                    self.setItem(i,0,Variable(var+f"_{k}",item))
+                    self.setItem(i,1,Variable(get_unit_to_print(item.getPath(), var),item))
+                    self.setItem(i,2,Variable(get_dimension_var(item.getPath(), var),item))
+                    self.setItem(i,3,Variable(get_dtype_var_str(item.getPath(), var),item))
+                    i += 1
 
 
 class DataModel(TableModel):
@@ -315,7 +319,7 @@ class DataModel(TableModel):
     input: data: [array[data_arrays[variable_dtype]]], items: [array[Items]]
     output: items [array[items]] - fixed
     """
-    def updateItems(data,items):
+    def updateItems(self,data,items):
         names = list(data)
         prev = names[0]
         i = 1

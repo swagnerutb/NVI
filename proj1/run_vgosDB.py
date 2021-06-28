@@ -81,6 +81,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             cmd = cmd+" -g"
         
         app.quit()
+
         os.system(cmd)
 
 

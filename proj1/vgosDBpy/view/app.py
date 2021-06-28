@@ -56,13 +56,15 @@ class vgosDBpyGUI(QWidget):
         ################## Buttons ########################
         # Plot and display table
         self.button_plot = QPushButton('& Plot',self)
+        self.button_x_plot = QPushButton('& Set x-axis',self)
         self.button_table = QPushButton('& Table',self)
-        self.button_append_table = QPushButton('& Add to table' )
-        self.button_append_plot = QPushButton( '& Add to plot')
+        self.button_append_table = QPushButton('& Add to table')
+        self.button_append_plot = QPushButton('& Add to y-axis')
         self.button_clear = QPushButton('& Clear')
 
         # Button event
         self.button_plot.clicked.connect(self._plotbutton)
+        self.button_x_plot.clicked.connect(self._x_plotbutton)
         self.button_table.clicked.connect(self._tablebutton)
         self.button_append_table.clicked.connect(self._append_tablebutton)
         self.button_append_plot.clicked.connect(self._append_plotbutton)
@@ -71,11 +73,12 @@ class vgosDBpyGUI(QWidget):
         # Button layout
         self.button_widget = QWidget(self)
         button_layout = QGridLayout()
-        button_layout.addWidget(self.button_plot, 0, 0)
-        button_layout.addWidget(self.button_table, 0, 1)
-        button_layout.addWidget(self.button_append_plot, 1, 0)
-        button_layout.addWidget(self.button_append_table, 1, 1)
-        button_layout.addWidget(self.button_clear, 2, 0)
+        button_layout.addWidget(self.button_plot,0,0,1,2)
+        button_layout.addWidget(self.button_append_plot,1,0)
+        button_layout.addWidget(self.button_x_plot,1,1)
+        button_layout.addWidget(self.button_table,2,0)
+        button_layout.addWidget(self.button_append_table,2,1)
+        button_layout.addWidget(self.button_clear,3,0,1,2)
         self.button_widget.setLayout(button_layout)
 
         # Listeners
@@ -136,7 +139,7 @@ class vgosDBpyGUI(QWidget):
                 text = Wrapper.getHistory(item.getPath())
                 self.info_text.setPlainText(text)
 
-    def _plotbutton(self):
+    def _plotbutton(self,custom_x_axis=False):
         '''
         Method for plotting data from variables
         '''
@@ -164,9 +167,7 @@ class vgosDBpyGUI(QWidget):
                 data_axis = self.plot_widget.getDataAxis()
                 
                 self.plot_toolbox.updateDataAxis(data_axis)
-                
                 self.data_table.resetModel()
-                
                 self.data_table.updateFromDataAxis(data_axis)
         try:
             self.canvas.updatePlot()
@@ -175,12 +176,7 @@ class vgosDBpyGUI(QWidget):
         # Switch over to plot-tab
         self.tab_widget_plt.setCurrentWidget(self.plot_widget)
 
-
-    def _append_plotbutton(self):
-        '''
-        Appends a variable to be displayed in a plot
-        '''
-
+    def _x_plotbutton(self):
         index = self._getSelected(self.var_table)
 
         # Checks if non-empty index
@@ -190,7 +186,37 @@ class vgosDBpyGUI(QWidget):
             item = self.var_table.getModel().itemFromIndex(index[-1])
 
             # Checks if selected item should and can be visulized in plot
-            if not is_string( item.getPath(), item.labels):
+            if not is_string(item.getPath(), item.labels):
+
+                #self.plot_widget.plot_canvas.append_plot(item) #SE view.plot_widget.append_plot()
+                self.plot_widget.plot_canvas.append_plot(item,custom_x_axis=True) #SE view.plot_widget.x_axis_append_plot()
+                data_axis = self.plot_widget.getDataAxis()
+                self.plot_toolbox.updateDataAxis(data_axis)
+                self.data_table.updateFromDataAxis(data_axis)
+
+        # Switch over to plot-tab
+        self.tab_widget_plt.setCurrentWidget(self.plot_widget)
+
+        # Setting to scatter plot 
+        self.plot_toolbox.check_line.setCheckState(QtCore.Qt.Unchecked)
+        self.plot_toolbox.check_marker.setCheckState(QtCore.Qt.Checked)
+        self.plot_toolbox.check_smooth_curve.setCheckState(QtCore.Qt.Unchecked)
+
+
+    def _append_plotbutton(self):
+        '''
+        Appends a variable to be displayed in a plot
+        '''
+        index = self._getSelected(self.var_table)
+
+        # Checks if non-empty index
+        if not index == []:
+
+            # Get the last selected data
+            item = self.var_table.getModel().itemFromIndex(index[-1])
+
+            # Checks if selected item should and can be visulized in plot
+            if not is_string(item.getPath(), item.labels):
 
                 self.plot_widget.plot_canvas.append_plot(item)
                 data_axis = self.plot_widget.getDataAxis()

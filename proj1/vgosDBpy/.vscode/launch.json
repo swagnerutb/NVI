@@ -10,10 +10,11 @@
             "request": "launch",
             "module": "vgosDBpy",
             "args":[
-                "/Users/sam/Desktop/NVI/vgosDBpy_test/2020/20FEB10XA/20FEB10XA_V002_iGSFC_kall.wrp",
+                "/Users/sam/Desktop/NVI/proj1/vgosDB/2020/20FEB10XA/20FEB10XA_V004_iIVS_kall.wrp",
                 "-g"
             ],
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "cwd": "/Users/sam/Desktop/NVI/proj1/vgosDBpy"
         }
     ]
 }
