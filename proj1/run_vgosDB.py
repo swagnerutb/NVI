@@ -1,4 +1,5 @@
 import sys
+import subprocess
 import os
 from PySide2 import QtCore, QtGui, QtWidgets
 from PySide2.QtCore import QObject, QRectF, Qt
@@ -45,7 +46,6 @@ class Ui_MainWindow(object):
         self.graph_intface = False
         
         MainWindow.setCentralWidget(self.centralWidget)
-
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
 
@@ -75,14 +75,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.graph_intface = (False == self.graph_intface)
 
     def _run_vgosDB(self):
-        cmd = "python -m vgosDBpy "+self.line.text()
-        cmd = "python3 -m vgosDBpy "+self.line.text()
+        self.cmd = "python -m vgosDBpy "+self.line.text()
+        self.cmd = "python3 -m vgosDBpy "+self.line.text()
         if(self.graph_intface == True):
-            cmd = cmd+" -g"
-        
-        app.quit()
+            self.cmd = self.cmd+" -g"
 
-        os.system(cmd)
+        app.closeAllWindows()
+
 
 
 if __name__ == "__main__":
@@ -91,4 +90,7 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     main_window = MainWindow()
     main_window.show()
-    sys.exit(app.exec_())
+    app.exec_()
+    
+    os.system(main_window.cmd)
+    sys.exit()
