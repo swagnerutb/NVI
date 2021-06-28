@@ -250,45 +250,19 @@ class Plotfunction_class():
         """
         # First find which data that should be x-axis
         # possible options is time, index or data from path.
-        print("\n######## vars:",vars,"########")
-        print("######## vars[0]:",vars[0],"########")
-        print("######## vars[0][-1]:",vars[0][-1],"########\n")
-
-        # try:
-        #     print("self._getX():\n",self._getX(),"\n")
-        # except:
-        #     print("doesn't work 0")
-        # try:
-        #     print("self.x._getX():\n",self.x._getX(),"\n")
-        # except:
-        #     print("doesn't work 1")
-        # try:
-        #     print("self.y1.get_axis_label(self):\n",self.y1.get_axis_label(),"\n")
-        # except:
-        #     print("doesn't work 2")
-        # try:
-        #     print("self.y2.get_axis_label(self):\n",self.y2.get_axis_label(),"\n")
-        # except:
-        #     print("doesn't work 3")
-
-
         
         Temp =  get_data_to_plot(paths[0],vars[0])
 
         if(custom_x_axis==False and len(vars) < 3):
             if(nbr == 1 and plot_to_time == False):
-                print("plotFunction: if -> if")
                 self._add_index_to_xAxis(paths[0],Temp[0])
-                #itm = Temp[int(vars[0][-1])] # data needed to get a 2 dim plot, rather than looping and having 2 y-axes
                 self.add_to_y_axis(paths[0],vars[0],Temp)
             else:
                 if(plot_to_time == True):
-                    print("plotFunction: if -> else -> if")
                     self._add_time_to_xAxis(paths[0])
                 else:
-                    print("plotFunction: if -> else -> else")
                     #This plots two curves on y-axis
-                    for i in range(min(2,len(paths))): #default: range(len(paths))
+                    for i in range(len(paths)):
                         Temp = get_data_to_plot(paths[i],vars[i])
                         self._add_index_to_xAxis(paths[i],Temp[0])
                         k=0
@@ -296,9 +270,8 @@ class Plotfunction_class():
                             self.add_to_y_axis(paths[i],vars[i],itm)
 
         if(custom_x_axis==True or len(vars) >= 3):
-            #Reverse lists to get x and y-axes right
-            #print("\n:::::BEFORE:::::\npaths:\n",paths,"\nvars:\n",vars)
             if(custom_x_axis == True):
+                #Reverse lists to get x and y-axes right
                 paths = paths[::-1]
                 vars = vars[::-1]
                 if(len(vars) >= 3):
@@ -315,7 +288,6 @@ class Plotfunction_class():
                 temp_var = vars[1]
                 vars[1] = vars[0]
                 vars[0] = temp_var
-            #print("\n:::::AFTER:::::\npaths:\n",paths,"\nvars:\n",vars)
 
 
             for i in range(len(paths)):
@@ -327,7 +299,6 @@ class Plotfunction_class():
             if self.x.isEmpty == True:
                 self._add_index_to_xAxis(paths[0],Temp)
 
-        #in case if(nbr == 1 and plot_to_time == False) above is not fulfilled
         if(nbr != 1 or plot_to_time == True):
             if self.x.isEmpty == True:
                     self._add_index_to_xAxis(paths[0],Temp)
@@ -358,11 +329,7 @@ class Plotfunction_class():
             y1_label_ = self.y1.get_axis_label()
             self.axis[0].set_xlabel(x_label_)
             self.axis[0].set_ylabel(y1_label_,color=color)
-            # try:
             self.axis[0].plot(self.x.getData(), self.y1.getData(), color=color, label = name(self.y1.getVar()).split("_")[0])
-            # except:
-            #     print("\nexception!\n")
-            #     self.self.axis[0].plot(self.x.getData()[0], self.y1.getData(), color=color, label = name(self.y1.getVar()).split("_")[0])
             
             self.axis[0].tick_params(axis='y', labelcolor=color)
 

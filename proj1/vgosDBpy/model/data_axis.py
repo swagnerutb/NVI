@@ -23,9 +23,6 @@ class DataAxis:
 
         self._item = item
 
-        # print("Axes:", self._axes)
-        # print("type(axes):", type(self._axes))
-
         if self.axisExists():
             ### Lines that belongs to the axes
             if len(axes.get_lines()) > 1:
@@ -154,38 +151,6 @@ class DataAxis:
 
         bool [boolean]
         '''
-        # print("model.data_axis -> displayMarkers")
-        # try:
-        #     print("len(self._axes.get_lines()):",len(self._axes.get_lines()))
-        # except:
-        #     print("-1")
-        # try:
-        #     print("len(self._axes):",len(self._axes))
-        # except:
-        #     print("-2")
-        # try:
-        #     print("len(self._data):",len(self._data))
-        # except:
-        #     print("-3")
-        # try:
-        #     print("len(self._edited_data):",len(self._edited_data))
-        # except:
-        #     print("-4")
-        # try:
-        #     print("len(self._marked_data):",len(self._marked_data))
-        # except:
-        #     print("-5")
-        # try:
-        #     print("len(self._item):",len(self._item))
-        # except:
-        #     print("-6")
-
-        # print(len(self._axes.get_lines()))
-
-        # print("yeeeeellow")
-        
-
-        #axes.get_lines()[0]
 
         if self.axisExists():
             if bool == True:
