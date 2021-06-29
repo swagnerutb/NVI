@@ -29,7 +29,6 @@ def get_data_to_plot(pathToNetCDF,var):
             y = _getDataFromVar_table(pathToNetCDF,var)
         
         y_return = y[int(var[-1])]
-        print("y_return.shape:", np.asarray(y_return).shape)
         return [y_return]
 
 """
@@ -162,7 +161,6 @@ output:
 def _get_len_dims(path, var):
     with Dataset(path, 'r') as nc:
         dims = nc.variables[var].get_dims()
-        print("\n we got the dims:", dims)
         return len(dims)
 
 """
