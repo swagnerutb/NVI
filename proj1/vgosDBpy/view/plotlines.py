@@ -1,6 +1,7 @@
 from matplotlib.lines import Line2D
 from scipy.signal import savgol_filter
 import pandas as pd
+import numpy as np
 
 def createLine2D(series, marker = None):
     '''
@@ -11,6 +12,14 @@ def createLine2D(series, marker = None):
     marker [string] decides if a marker should be shown for the line
     '''
     return Line2D(series.index, series[:], marker = marker)
+
+# def createDegreeCurve(series, return_data = False):
+#     data = np.multiply(series,360/(2*3.14159265359))
+#     if return_data:
+#         return pd.Series(data, index = series.index)
+#     else:
+#         return createLine2D(pd.Series(data, index = series.index))
+
 
 def createSmoothCurve(series, window_size = 31, pol_order = 4, return_data = False):
     '''

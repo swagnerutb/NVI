@@ -158,6 +158,7 @@ class Plotfunction_class():
     """
     def add_to_x_axis(self,path,var,data): # adds data to the x-Axis
         data = np.squeeze(np.asarray(data))
+        
         self.x.createAxisItem(path,var,data)
 
 
@@ -204,6 +205,27 @@ class Plotfunction_class():
         idx = range(1,nbrIdx)
         self.add_to_x_axis(path,'Index', idx)
 
+    def _get_axis_label(self,label,use_degrees):
+        """
+            Returns axis label and converts radians to degrees if needed
+            input:
+            label: axis.get_axis_label()
+            use_degrees: [boolean]
+        """
+        try:
+            unit = label.split("[")[1]
+        except:
+            unit = label
+        if(use_degrees == True and (unit.startswith("radian") or unit.startswith("radians"))):
+            if(unit.startswith("radians")):
+                label = label.replace("radians","degrees")
+            else:
+                label = label.replace("radian","degrees")
+            return label
+        else:
+            return label
+
+
 
     """
     Adds the data stored int he axis to the directory 'data'
@@ -222,7 +244,7 @@ class Plotfunction_class():
             if(self.y2.isEmpty == False and vars.endswith("1")):
                 self.data.append(pd.Series(self.y2.getData(), index = self.x.getData() ) )
 
-    def plotFunction(self,paths,vars,fig,state,custom_x_axis=False):
+    def plotFunction(self,paths,vars,fig,state,custom_x_axis=False,use_degrees=True):
         """
         The function that is called from other files to retrieve the right data and lables for a plot
         input:
@@ -231,6 +253,7 @@ class Plotfunction_class():
             fig: [figure]
             state: [int]
             custom_x_axis: [boolean] (optional argument)
+            use_degrees: [boolean] (optional argument)
         output:
             axis: [Axis]
             data: [directory '{}']
@@ -251,7 +274,7 @@ class Plotfunction_class():
         # First find which data that should be x-axis
         # possible options is time, index or data from path.
         
-        Temp =  get_data_to_plot(paths[0],vars[0])
+        Temp =  get_data_to_plot(paths[0],vars[0],use_degrees)
 
         if(custom_x_axis==False and len(vars) < 3):
             if(nbr == 1 and plot_to_time == False):
@@ -263,7 +286,7 @@ class Plotfunction_class():
                 else:
                     #This plots two curves on y-axis
                     for i in range(len(paths)):
-                        Temp = get_data_to_plot(paths[i],vars[i])
+                        Temp = get_data_to_plot(paths[i],vars[i],use_degrees)
                         self._add_index_to_xAxis(paths[i],Temp[0])
                         k=0
                         for itm in Temp:
@@ -291,7 +314,7 @@ class Plotfunction_class():
 
 
             for i in range(len(paths)):
-                Temp = get_data_to_plot(paths[i],vars[i])
+                Temp = get_data_to_plot(paths[i],vars[i],use_degrees)
                 if(len(Temp) == 1 and self.x.isEmpty == True):
                     self.add_to_x_axis(paths[i], vars[i], Temp)
                     self.place = i
@@ -309,10 +332,10 @@ class Plotfunction_class():
             for i in range(len(paths)):
                 if i != self.place:
                     if(vars[i] != vars[i].split("_")[0]):
-                        Temp = get_data_to_plot(paths[i],vars[i])
+                        Temp = get_data_to_plot(paths[i],vars[i],use_degrees)
                         self.add_to_y_axis(paths[i],vars[i],Temp)
                     else:
-                        Temp = get_data_to_plot(paths[i],vars[i])
+                        Temp = get_data_to_plot(paths[i],vars[i],use_degrees)
                         for temp_data in Temp:
                             self.add_to_y_axis(paths[i],vars[i],temp_data)
 
@@ -324,12 +347,15 @@ class Plotfunction_class():
         # first handle y1 meaning working with axis[0]
         if self.y1.isEmpty == False:
             self._createAxis(fig)
-            color ='black'
-            x_label_ = self.x.get_axis_label()
-            y1_label_ = self.y1.get_axis_label()
+            color = 'black'
+            
+            x_label_ = self._get_axis_label(self.x.get_axis_label(),use_degrees)
+            y1_label_ = self._get_axis_label(self.y1.get_axis_label(),use_degrees)
+
+            x_data = self.x.getData()
             self.axis[0].set_xlabel(x_label_)
             self.axis[0].set_ylabel(y1_label_,color=color)
-            self.axis[0].plot(self.x.getData(), self.y1.getData(), color=color, label = name(self.y1.getVar()).split("_")[0])
+            self.axis[0].plot(x_data, self.y1.getData(), color=color, label = name(self.y1.getVar()).split("_")[0])
             
             self.axis[0].tick_params(axis='y', labelcolor=color)
 
@@ -337,7 +363,9 @@ class Plotfunction_class():
         if self.y2.isEmpty == False:
             self._appendAxis() # instantiate a second axes that shares the same x-axis
             color = 'tab:blue'
-            y2_label_ = self.y2.get_axis_label()
+
+            y2_label_ = self._get_axis_label(self.y2.get_axis_label(),use_degrees)
+
             self.axis[1].plot(self.x.getData(), self.y2.getData(), color=color,label = name(self.y2.getVar()))
             self.axis[1].set_ylabel(y2_label_,color=color)
             self.axis[1].tick_params(axis='y', labelcolor=color)

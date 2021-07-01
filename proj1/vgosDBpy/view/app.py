@@ -163,7 +163,8 @@ class vgosDBpyGUI(QWidget):
 
             # Updates display in plot and table
             if len(items)>0:
-                self.plot_widget.plot_canvas.updateFigure(items)
+                use_degrees = self.plot_toolbox.check_degrees.isChecked()
+                self.plot_widget.plot_canvas.updateFigure(items,use_degrees=use_degrees)
                 data_axis = self.plot_widget.getDataAxis()
                 
                 self.plot_toolbox.updateDataAxis(data_axis)
@@ -189,7 +190,8 @@ class vgosDBpyGUI(QWidget):
             if not is_string(item.getPath(), item.labels):
 
                 #self.plot_widget.plot_canvas.append_plot(item) #SE view.plot_widget.append_plot()
-                self.plot_widget.plot_canvas.append_plot(item,custom_x_axis=True) #SE view.plot_widget.x_axis_append_plot()
+                use_degrees = self.plot_toolbox.check_degrees.isChecked()
+                self.plot_widget.plot_canvas.append_plot(item,custom_x_axis=True,use_degrees=use_degrees) #see view.plot_widget.x_axis_append_plot()
                 data_axis = self.plot_widget.getDataAxis()
                 self.plot_toolbox.updateDataAxis(data_axis)
                 self.data_table.updateFromDataAxis(data_axis)
@@ -217,8 +219,8 @@ class vgosDBpyGUI(QWidget):
 
             # Checks if selected item should and can be visulized in plot
             if not is_string(item.getPath(), item.labels):
-
-                self.plot_widget.plot_canvas.append_plot(item)
+                use_degrees = self.plot_toolbox.check_degrees.isChecked()
+                self.plot_widget.plot_canvas.append_plot(item,use_degrees=use_degrees)
                 data_axis = self.plot_widget.getDataAxis()
                 self.plot_toolbox.updateDataAxis(data_axis)
                 self.data_table.updateFromDataAxis(data_axis)

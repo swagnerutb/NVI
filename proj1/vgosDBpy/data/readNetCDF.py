@@ -1,10 +1,11 @@
 import datetime
 from netCDF4 import Dataset
 
-import numpy as np #REMOVE
+import numpy as np
 
 from vgosDBpy.data.combineYMDHMS import combineYMDHMwithSec,findCorrespondingTime
 from vgosDBpy.data.convertDimensionName import get_folder_name, get_correct_dimension_name
+from vgosDBpy.data.getName import get_unit_to_print
 """
 ___________________________________________________________________________________________
 Functions to create plot
@@ -17,18 +18,32 @@ returns an array cotaning an array of the data sored in an variable
 input:
     pathToNetCDF: [string]
     var: [string]
+    use_degrees: [boolean] (optional)
 output:
     y: [array[var_dtype]]
 """
-def get_data_to_plot(pathToNetCDF,var):
+def get_data_to_plot(pathToNetCDF,var,use_degrees=False):
     with Dataset(pathToNetCDF, 'r') as nc:
         marker = is_multdim_var(pathToNetCDF, var)
         if marker != -1:
             y = _getDataFromVar_multDim(pathToNetCDF,var) #if matrix stored in variable, all data read in
         else:
             y = _getDataFromVar_table(pathToNetCDF,var)
-        
+
         y_return = y[int(var[-1])]
+        try:
+            unit = get_unit_to_print(pathToNetCDF,var.split("_")[0]).split("[")[1]
+        except:
+            unit = get_unit_to_print(pathToNetCDF,var.split("_")[0])
+        if(var[-1] != "0"):
+            try:
+                unit = unit.split(", ")[int(var[-1])]
+            except:
+                pass
+        
+        if(use_degrees == True and (unit.startswith("radian") or unit.startswith("radians"))):
+            y_return = np.multiply(y_return,180/np.pi)
+
         return [y_return]
 
 """

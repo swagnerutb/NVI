@@ -48,8 +48,7 @@ class AxesToolBox(QWidget):
         # Control, appearance and data variables
         self.selector = None
         self.data_axis = canvas.getDataAxis()
-        #self.current_axis = start_axis
-        #New:
+        self.degrees = True
         self.current_axis = start_axis
 
 
@@ -60,6 +59,7 @@ class AxesToolBox(QWidget):
         self.check_marker = QCheckBox('Show markers')
         self.check_smooth_curve = QCheckBox('Show smooth curve')
         self.timeDefault = QCheckBox('Display time on X-axis')
+        self.check_degrees = QCheckBox('Use degrees')
 
         self.clear_marked = QPushButton('Clear all marked data', self)
         self.remove_marked = QPushButton('Remove marked data', self)
@@ -75,6 +75,7 @@ class AxesToolBox(QWidget):
         appearance_layout.addWidget(self.check_marker, 1, 0)
         appearance_layout.addWidget(self.check_smooth_curve, 2, 0)
         appearance_layout.addWidget(self.timeDefault, 3, 0)
+        appearance_layout.addWidget(self.check_degrees, 3, 1)
 
         appearance_layout.addWidget(self.clear_marked, 0, 1)
         appearance_layout.addWidget(self.remove_marked, 1, 1)
@@ -95,6 +96,9 @@ class AxesToolBox(QWidget):
 
         self.check_smooth_curve.setCheckState(QtCore.Qt.Unchecked)
         self.check_smooth_curve.stateChanged.connect(self._showSmoothCurve)
+
+        self.check_degrees.setCheckState(QtCore.Qt.Checked)
+        self.check_degrees.stateChanged.connect(self._useDegrees)
 
         self.timeDefault.setCheckState(QtCore.Qt.Checked)
         self.timeDefault.stateChanged.connect(self._timeDefault)
@@ -283,6 +287,17 @@ class AxesToolBox(QWidget):
 
 
     ######## Button methods that control appearance
+
+    def _useDegrees(self):
+        '''
+        Method that displays/hide a smooth curve fit in the data
+        '''
+        self.degrees = False or self.check_degrees.isChecked()
+        #print("self.degrees =",self.degrees)
+        # for axis in self.data_axis:
+        #     axis.displayDegreeCurve(self.check_degrees.isChecked())
+        # self.canvas.updatePlot()
+        
 
     def _showLine(self):
         '''

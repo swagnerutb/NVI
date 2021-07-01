@@ -109,7 +109,7 @@ class PlotFigure(FigureCanvas):
         '''
         return data_axis in self._ax
 
-    def updateFigure(self,items,timeUpdated=False,custom_x_axis=False):
+    def updateFigure(self,items,timeUpdated=False,custom_x_axis=False,use_degrees=True):
         '''
         Updates figure with the given items
 
@@ -134,7 +134,7 @@ class PlotFigure(FigureCanvas):
                     self.items.append(itm)
             
             if not_S1(self.paths, self.vars):
-                axis, data = self.plot_function.plotFunction(self.paths, self.vars, self.figure, self.timeInt, custom_x_axis=custom_x_axis)
+                axis, data = self.plot_function.plotFunction(self.paths, self.vars, self.figure, self.timeInt, custom_x_axis=custom_x_axis,use_degrees=use_degrees)
                 is_mult = is_multdim_var_list(self.paths, self.vars)
 
                 if is_mult!= -1:
@@ -169,10 +169,12 @@ class PlotFigure(FigureCanvas):
             self.addAxis(DataAxis(axis[i], data[i], items[i]))
         self.updatePlot()
 
-    def append_plot(self, item, custom_x_axis=False):
+    def append_plot(self, item, custom_x_axis=False,use_degrees=True):
         """
         Appends existing figue with the given item
         item: [QStandardItem]
+        custom_x_axis: [boolean] (optional argument)
+        use_degrees: [boolean] (optional argument)
         """
         #add new item
         self.paths.append(item.getPath())
@@ -180,7 +182,7 @@ class PlotFigure(FigureCanvas):
         self.items.append(item)
         self.clearAxes()
         if not_S1(self.paths,self.vars):
-            axis, data = self.plot_function.plotFunction(self.paths, self.vars, self.figure, self.timeInt, custom_x_axis)
+            axis, data = self.plot_function.plotFunction(self.paths, self.vars, self.figure, self.timeInt, custom_x_axis, use_degrees)
             for i in range(len(axis)):
                 data_axis = DataAxis(axis[i], data[i], self.items[i])
                 self.addAxis(data_axis)

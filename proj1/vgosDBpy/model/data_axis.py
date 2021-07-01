@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-from vgosDBpy.view.plotlines import createLine2D, createSmoothCurve, createMarkedCurve
+from vgosDBpy.view.plotlines import createLine2D, createSmoothCurve, createMarkedCurve#, createDegreeCurve
 
 
 class DataAxis:
@@ -31,12 +31,19 @@ class DataAxis:
             self.main_curve = axes.get_lines()[0] # Saves the curve for edited data (where marked data is hidden)
 
             smooth_curve = createSmoothCurve(self._data)
+            # degree_curve = createDegreeCurve(self._data)
+
             if type(smooth_curve) == None:
                 self.smooth_curve = None
+                # self.degree_curve = None
             else:
                 self.smooth_curve = self._axes.add_line(smooth_curve) # Saves the smooth curve
                 self.smooth_curve.update_from(self.main_curve)
                 self.smooth_curve.set_visible(False)
+
+                # self.degree_curve = self._axes.add_line(degree_curve)
+                # self.degree_curve.update_from(self.main_curve)
+                # self.degree_curve.set_visible(False)
 
 
             self.marked_data_curve = self._axes.add_line(createMarkedCurve(self._data, self._marked_data)) # Saves marked data points to plot
@@ -166,6 +173,15 @@ class DataAxis:
         '''
         if self.axisExists():
             self.marked_data_curve.set_visible(bool)
+
+    # def displayDegreeCurve(self, bool):
+    #     """
+    #     Decides whether to display degrees curve
+    #     """
+    #     if self.axisExists():
+    #         if DataAxis.lineExists(self.degree_curve):
+    #             self.degree_curve.set_visible(bool)
+
 
     def displaySmoothCurve(self, bool):
         '''

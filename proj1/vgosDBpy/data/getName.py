@@ -33,7 +33,7 @@ output:
 def get_unit_to_print(path,var):
     with Dataset(path, "r", format="NETCDF4") as nc:
         if var == 'Time':
-            return '[M:D:H]'
+            return ' [M:D:H]'
         try:
             unit = nc.variables[var].Units
         except:
