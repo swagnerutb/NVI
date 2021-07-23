@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import random
 import pandas as pd
@@ -25,17 +26,14 @@ def load_MNIST_data():
 
 class set_dataset(Dataset):
     def __init__(self, data_to_use):
+        path_base = '/Users/sam/Desktop/NVI/proj4/sked_data'
+
         path_sked_tot = '/Users/sam/Desktop/NVI/proj4/ut1_d10_00h.txt'
         df_sked_tot = pd.read_csv(path_sked_tot,sep='\s+',header=None)
         df_sked_tot.rename(columns={8:'RMS',6:'formal_error',2:"num_obs"},inplace=True)
-
-        path_xydata = '/Users/sam/Desktop/NVI/proj4/sked_data/all_obs_data.csv'
-        path_holesdata = '/Users/sam/Desktop/NVI/proj4/sked_data/holes_full_data.csv'
-        path_intervaldata = '/Users/sam/Desktop/NVI/proj4/sked_data/interval_obs.csv'
-        path_var_intervaldata = '/Users/sam/Desktop/NVI/proj4/sked_data/var_of_interval_obs.csv'
-        path_formatted_skeds = '/Users/sam/Desktop/NVI/proj4/sked_data/sk_d10_00h_formatted'
-
+        
         if('xydata' in data_to_use): # xy data
+            path_xydata = os.path.join(path_base,'all_obs_data.csv')
             print("...using x, y data...")
             xy = np.loadtxt(path_xydata,delimiter=',',dtype=np.float32,skiprows=1)
             print("\n\nlen(xy):\n",len(xy))
@@ -44,6 +42,7 @@ class set_dataset(Dataset):
 
         
         if('holesdata' in data_to_use): # holes data
+            path_holesdata = os.path.join(path_base,'holes_full_data.csv')
             print("...using holes data...")
             xy = np.loadtxt(path_holesdata,delimiter=',',dtype=np.float32,skiprows=1,usecols=(2,3,4,5))
             # print("======= xy :\n",pd.read_csv(csv_file,index_col=0).columns.tolist())
@@ -81,6 +80,7 @@ class set_dataset(Dataset):
             print("...using interval data...")
             ### Use variance of observations in x and y direction
             if(False):
+                path_var_intervaldata = os.path.join(path_base,'var_of_interval_obs.csv')
                 # df_xy = pd.read_csv(path_var_intervaldata,sep=',',index_col=0)
                 xy_var = np.loadtxt(path_var_intervaldata,delimiter=',',dtype=np.float32,skiprows=1,usecols=(2,3,4))
 
@@ -93,6 +93,7 @@ class set_dataset(Dataset):
 
             ### Use grid of observation in intervals
             if(True):
+                path_intervaldata = os.path.join(path_base,'interval_obs.csv')
                 df_xy = pd.read_csv(path_intervaldata,sep=',',index_col=0)
                 
                 xy = np.loadtxt(path_intervaldata,delimiter=',',dtype=np.float32,skiprows=1,usecols=(2,3,4))
@@ -111,6 +112,8 @@ class set_dataset(Dataset):
                     y_ = xy[:,[0]].astype(int)
             
         if('griddata' in data_to_use):
+            path_formatted_skeds = os.path.join(path_base,'sk_d10_00h_formatted')
+
             ## We want to get an amount of observations per interval on the form [x1,...,xn,y1,...,yn]
             ## i.e. in the end we get 501*51 arrays of [x1,...,xn,y1,...,yn], sort of like a grid.
             ## This will give us data similar to images.
@@ -168,11 +171,6 @@ class set_dataset(Dataset):
                     for ind in idx_list:
                         x = df3.loc[ind,'plot_1']
                         y = df3.loc[ind,'plot_2']
-
-                        x = -85
-                        x = 88
-                        y = 10
-                        y = 90
 
                         # print(f"(x,y) = ({x},{y})")
                         
