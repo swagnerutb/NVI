@@ -2,7 +2,10 @@
 
 **Authors: Hanna Ek & Rickard Karlsson**
 
+**Updates (2021): Samuel Wagner**
+
 This project was developed during a summer internship at NVI Inc. @ NASA GSFC
+
 
 ## How to install vgosDBpy
 Read the installation manual in /Manuals/.
