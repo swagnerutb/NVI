@@ -12,7 +12,7 @@ Read the installation manual in /Manuals/.
 
 ###### Get the files to your computer
 
-Either download the zip-file from the github repository or enter 'git clone https://github.com/RickardKarl/vgosDBpy.git' in the terminal
+Either download the zip-file from the github repository or enter 'git clone https://github.com/swagnerutb/NVI.git' in the terminal
 
 
 ## How to use vgosDBpy
